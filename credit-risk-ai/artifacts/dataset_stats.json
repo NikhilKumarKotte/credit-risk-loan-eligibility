@@ -1,0 +1,112 @@
+{
+  "rowCount": 12000,
+  "colCount": 18,
+  "defaultRate": 0.04625,
+  "numeric": {
+    "Age": {
+      "n": 12000,
+      "mean": 44.876333333333335,
+      "min": 21,
+      "max": 69,
+      "median": 45
+    },
+    "Income": {
+      "n": 12000,
+      "mean": 64788.65891666667,
+      "min": 8000,
+      "max": 192660,
+      "median": 65696
+    },
+    "Years_Employed": {
+      "n": 12000,
+      "mean": 6.669,
+      "min": 0,
+      "max": 28,
+      "median": 5
+    },
+    "Credit_History_Length": {
+      "n": 12000,
+      "mean": 11.178083333333333,
+      "min": 0,
+      "max": 36,
+      "median": 10
+    },
+    "Number_of_Credit_Cards": {
+      "n": 12000,
+      "mean": 5.482166666666667,
+      "min": 0,
+      "max": 11,
+      "median": 6
+    },
+    "Outstanding_Loan_Amount": {
+      "n": 12000,
+      "mean": 24732.108833333332,
+      "min": 4,
+      "max": 310162,
+      "median": 16925
+    },
+    "Debt_to_Income_Ratio": {
+      "n": 12000,
+      "mean": 1.3395018333333324,
+      "min": 0.008,
+      "max": 5,
+      "median": 0.906
+    },
+    "Monthly_Expenses": {
+      "n": 12000,
+      "mean": 3387.7834166666667,
+      "min": 500,
+      "max": 14918,
+      "median": 3111
+    },
+    "Previous_Defaults": {
+      "n": 12000,
+      "mean": 0.6239166666666667,
+      "min": 0,
+      "max": 5,
+      "median": 0
+    },
+    "Loan_Amount": {
+      "n": 12000,
+      "mean": 35465.557,
+      "min": 1000,
+      "max": 128597,
+      "median": 35017
+    },
+    "Loan_Term": {
+      "n": 12000,
+      "mean": 54.589,
+      "min": 12,
+      "max": 120,
+      "median": 48
+    },
+    "Interest_Rate": {
+      "n": 12000,
+      "mean": 9.930281666666671,
+      "min": 6,
+      "max": 36,
+      "median": 8.73
+    },
+    "Savings_Balance": {
+      "n": 12000,
+      "mean": 65416.58216666667,
+      "min": 0,
+      "max": 338694,
+      "median": 53052
+    },
+    "Transaction_Volume": {
+      "n": 12000,
+      "mean": 101.97883333333333,
+      "min": 5,
+      "max": 199,
+      "median": 102
+    },
+    "Late_Payments": {
+      "n": 12000,
+      "mean": 1.37225,
+      "min": 0,
+      "max": 8,
+      "median": 1
+    }
+  }
+}

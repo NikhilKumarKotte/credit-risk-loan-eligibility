@@ -1,0 +1,318 @@
+[
+  {
+    "slide": "ppt/slides/slide1.xml",
+    "texts": [
+      "Stock Market Prediction Using LSTM Recurrent Neural Networks",
+      "TITLE : STOCK MARKET PREDICTION USING AUTOFORMER",
+      "Submitted By:",
+      "N.DIVYA                                     (22XXXXX)",
+      "SAMSON",
+      "(22XXXXX)",
+      "R.VINAY",
+      "(22XXXXX)",
+      "BHARGHAV REDDY",
+      "(22XXXXX)"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide2.xml",
+    "texts": [
+      "Abstract",
+      "Stock price prediction remains a challenging yet critical task in financial markets due to the inherent volatility and complex patterns in time-series data. Traditional statistical models like ARIMA often struggle to capture nonlinear dependencies, while machine learning approaches require robust feature engineering to handle market noise effectively. This project proposes an enhanced stock price prediction system using Bidirectional Long Short-Term Memory (",
+      "BiLSTM",
+      ") networks, which improve upon conventional LSTMs by processing temporal data in both forward and backward directions. The model incorporates multiple technical indicators—including Relative Strength Index (RSI), Simple Moving Averages (SMA), and Moving Average Convergence Divergence (MACD)—to capture market trends, momentum, and volatility. To address real-world applicability, the system implements a walk-forward validation approach, ensuring robustness against temporal overfitting."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide3.xml",
+    "texts": [
+      "Introduction",
+      ".",
+      "Problem Statement",
+      "Stock markets are highly volatile and influenced by numerous factors. Traditional statistical models struggle with capturing complex patterns, leading to suboptimal predictions.",
+      "Motivation",
+      "Accurate prediction of stock prices can help in building effective trading strategies and risk management systems.",
+      "Why LSTM?",
+      "Specifically designed to handle",
+      "sequential time-series data",
+      "Remembers long-term dependencies",
+      "better than traditional RNNs",
+      "Works well for",
+      "non-linear",
+      "and",
+      "noisy financial data.",
+      "LSTM networks",
+      ", a type of Recurrent Neural Network (RNN), are capable of learning long-term dependencies and recognizing temporal dynamics in sequential data, making them ideal for stock market time-series forecasting"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide4.xml",
+    "texts": [
+      "Existing Systems and Limitations",
+      "Approach",
+      "Limitations",
+      "ARIMA Models",
+      "Poor with non-linear trends",
+      "SVM",
+      "Struggles",
+      "with long sequences",
+      "Basic RNN",
+      "Vanishing gradient problem"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide5.xml",
+    "texts": [
+      "Existing Methodology",
+      "The existing system uses an",
+      "LSTM-based RNN",
+      "to predict stock prices using historical data (e.g., GOOGL from Yahoo Finance). It focuses on forecasting",
+      "future closing prices",
+      "based on past values.",
+      "Input",
+      ": Past 60 days of stock \"Close\" prices",
+      "Preprocessing",
+      ": Normalization with",
+      "MinMaxScaler",
+      "Model",
+      ": 1 LSTM layer → Dense layer",
+      "Loss Function",
+      ": Mean Squared Error (MSE)",
+      "Optimizer",
+      ": Adam",
+      "Result",
+      ": Accurate short-term trend prediction using LSTM's memory of past patterns."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide6.xml",
+    "texts": [
+      "Proposed System:"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide7.xml",
+    "texts": [
+      "In our project, we improved the method used in a previous research paper by replacing the LSTM model with a more advanced model called",
+      "Autoformer",
+      ".",
+      "Autoformer",
+      "uses attention and seasonal pattern learning, which helps it understand stock trends better over time.",
+      "The old method used only the",
+      "closing price",
+      "of one stock. But in our system, we use data from",
+      "three stocks",
+      "— Apple, Microsoft, and Tesla — and we include more useful features like",
+      "moving averages, RSI, and date-related features",
+      "(such as the day of the week or month).",
+      "Also, instead of predicting just the",
+      "closing price",
+      ", we predict both the",
+      "opening and closing prices",
+      "for the next day. Lastly, we use a better way to test the model’s performance called",
+      "walk-forward validation",
+      ", which is more realistic for stock prediction.",
+      "These changes make our model smarter, more accurate, and more useful for real-world use.",
+      "Proposed System"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide8.xml",
+    "texts": [
+      "Project Requirements",
+      "Software Requirements",
+      "Python",
+      "TensorFlow,",
+      "Keras",
+      "scikit-learn, Pandas, NumPy",
+      "Matplotlib, Seaborn",
+      "yfinance",
+      "Hardware Requirements",
+      "CPU",
+      ": Multi-core (Intel i7/",
+      "Ryzen",
+      "7 or better)",
+      "RAM",
+      ": Minimum 8 GB (16 GB recommended)",
+      "GPU",
+      ": NVIDIA GPU with CUDA support (GTX 1080/RTX 2070 or better)",
+      "Storage",
+      ": SSD (100 GB+ free space)",
+      "Internet",
+      ": Stable high-speed connection",
+      "Data Requirements",
+      "Stock Data",
+      ": Yahoo Finance API (OHLCV)",
+      "Technical Indicators",
+      ": RSI, MACD, SMA",
+      "Macro Data",
+      ": Economic indicators (optional)",
+      "External News",
+      ": News API (optional)"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide9.xml",
+    "texts": [
+      "Dataset Details",
+      "Why Yahoo Finance?",
+      "F",
+      "ree access to historical stock data.",
+      "Covers global stocks (AAPL, MSFT).",
+      "Provides OHLCV (Open, High, Low, Close, Volume) data for technical analysis",
+      "Data Features:",
+      "Stocks Used: AAPL, MSFT, TSLA",
+      "Date Range: 2018-01-01 to 2023-12-31",
+      "Total Duration: 6 years of daily data",
+      "Feature",
+      "Description",
+      "EMA_10",
+      "10-day Exponential Moving Average (trend)",
+      "RSI",
+      "Relative Strength Index (momentum)",
+      "Day_sin/cos",
+      "Cyclical encoding of day in month",
+      "Month_sin",
+      "/cos",
+      "Cyclical encoding of month",
+      "DOW_sin/cos",
+      "Cyclical encoding of day of the week"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide10.xml",
+    "texts": [
+      "Preprocessing",
+      "For each stock (AAPL,",
+      "MSFTand",
+      "day of the week are encoded using sine and cosine functions to reflect seasonality. The selected features — including OHLCV, EMA, RSI, and cyclical encodings — are then normalized using",
+      "MinMaxScaler",
+      "to ensure consistent scaling across inputs. The data is reshaped into sequences of 60 consecutive days to predict the next day's closing price, forming the input-output pairs. Finally, the dataset is split into 80% training and 20% validation, and passed to",
+      "PyTorch",
+      "DataLoaders",
+      "for efficient training in batches."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide11.xml",
+    "texts": [
+      "Methodology"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide12.xml",
+    "texts": [
+      "Methodology",
+      "1.Data Collection",
+      "Historical stock price data for selected companies (AAPL, MSFT, TSLA) is collected using the",
+      "yfinance",
+      "API, covering daily records from 2018 to 2023.",
+      "2.Data Preprocessing",
+      "The data is enriched with technical indicators such as EMA and RSI, along with cyclical time-based features (day, month, day of week). Missing values are handled, and all features are normalized using",
+      "MinMaxScaler",
+      ". The data is then converted into sequences of 60 days to be used as input for the model.",
+      "3.Train-Test Split",
+      "The dataset is divided into 80% for training and 20% for validation, ensuring the model learns from past data while generalizing to unseen data."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide13.xml",
+    "texts": [
+      "4.Model Building (",
+      "Autoformer",
+      ")",
+      "An",
+      "Autoformer",
+      "model is constructed to handle long-term dependencies in time series data. It leverages decomposition blocks and auto-correlation mechanisms for better temporal modeling compared to traditional LSTM networks.",
+      "5.Model Training",
+      "The model is trained using the training dataset over multiple epochs. The Mean Squared Error (MSE) loss function and Adam optimizer are used to optimize the weights.",
+      "6.Model Evaluation",
+      "After training, the model is evaluated using the validation set. Key metrics such as Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) are calculated to assess prediction accuracy.",
+      "7.Prediction & Results",
+      "The trained",
+      "Autoformer",
+      "model is used to predict future closing prices. The results are inverse-transformed to the original scale and compared visually and numerically against actual prices to analyze performance."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide14.xml",
+    "texts": [
+      "Model Architecture",
+      "Autoformer",
+      "Prevents overfitting",
+      "by randomly dropping units during training, enhancing generalization and reducing noise.",
+      "Multiple Technical Indicators",
+      "Includes RSI, EMA, MACD",
+      ", and other indicators",
+      "to enrich the input features and capture trend,",
+      "momentum,and",
+      "volatility patterns in the data.",
+      "Attends to relevant historical data for better forecasting.",
+      "Leverages auto-correlation and series decomposition for efficient long-term time series prediction.",
+      "Dropout Regularization"
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide15.xml",
+    "texts": [
+      "Results",
+      "The",
+      "Autoformer",
+      "model",
+      "was evaluated on three major stocks:",
+      "AAPL, MSFT, and TSLA",
+      ".",
+      "Performance metrics used:",
+      "MAE (Mean Absolute Error)",
+      "RMSE (Root Mean Squared Error)",
+      "The model showed",
+      "smooth and closely aligned prediction curves",
+      "compared to the actual stock prices.",
+      "Autoformer",
+      "outperformed traditional models",
+      "(like LSTM) by better capturing long-term dependencies and seasonality in stock data.",
+      "Visualizations of actual vs predicted prices confirm",
+      "robust short-term trend prediction",
+      "with reduced noise and lag."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide16.xml",
+    "texts": [
+      "Conclusion",
+      "This project demonstrates that the",
+      "Autoformer",
+      "model",
+      "is highly effective for predicting stock prices across multiple companies like AAPL, MSFT, and TSLA. Compared to traditional models like LSTM,",
+      "Autoformer",
+      "captures",
+      "long-term dependencies and seasonal patterns",
+      "more accurately using its auto-correlation mechanism and series decomposition.",
+      "By combining",
+      "technical indicators",
+      "(RSI, EMA) and",
+      "cyclical time features",
+      ", the model achieves improved forecasting performance with smoother and more reliable trend predictions. It also generalizes well to different stocks, making it suitable for",
+      "real-world FinTech applications",
+      ".",
+      "Overall,",
+      "Autoformer",
+      "proves to be a strong, scalable alternative to LSTM, offering better results for time series forecasting in the financial domain."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide17.xml",
+    "texts": [
+      "Practical Implications and Future Directions",
+      "The proposed",
+      "Autoformer",
+      "-based stock prediction model has significant practical implications in the financial domain. Its ability to accurately forecast stock prices can aid investors, traders, and financial institutions in making informed decisions for portfolio management, algorithmic trading, and risk assessment. The inclusion of technical indicators like RSI and EMA makes the model suitable for integration into existing technical analysis tools. Its scalability also allows it to be applied across multiple stocks and market environments with minimal adjustments. Looking ahead, the model can be further enhanced by incorporating macroeconomic indicators and real-time news sentiment to improve its predictive power. Future work could also focus on multivariate forecasting, where additional financial variables such as volume or volatility are predicted alongside price. Real-time deployment using live data feeds, integration of explainability tools (e.g., SHAP values), and the development of hybrid models combining",
+      "Autoformer",
+      "with CNNs or GNNs are promising directions to increase both accuracy and interpretability in real-world applications."
+    ]
+  },
+  {
+    "slide": "ppt/slides/slide18.xml",
+    "texts": []
+  }
+]

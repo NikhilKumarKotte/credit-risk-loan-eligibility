@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.18.0",
+    "pptxgenjs": "^4.0.1"
+  }
+}

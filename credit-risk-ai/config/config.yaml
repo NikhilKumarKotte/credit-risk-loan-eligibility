@@ -1,0 +1,35 @@
+# config.yaml
+# Central configuration for the AI Credit Risk Platform
+
+data:
+  path: data/loan_data.csv
+  n_samples: 12000
+  test_size: 0.20
+  random_seed: 42
+
+model:
+  path: models/credit_model.pkl
+  metrics_path: models/training_metrics.json
+
+scoring:
+  score_min: 300
+  score_max: 900
+  high_risk_upper: 500
+  medium_risk_upper: 700
+
+logging:
+  level: INFO
+  log_file: logs/training.log
+
+xgboost:
+  n_estimators: 400
+  max_depth: 6
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.8
+  scale_pos_weight: 3
+
+random_forest:
+  n_estimators: 300
+  max_depth: 12
+  min_samples_leaf: 5

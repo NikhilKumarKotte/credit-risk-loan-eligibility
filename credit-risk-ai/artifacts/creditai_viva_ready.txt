@@ -1,0 +1,280 @@
+CREDIT-AI VIVA-READY DOCUMENT
+============================
+Project: AI Credit Risk & Loan Eligibility Prediction Platform
+Author: K. Nikhil Kumar
+Affiliation: Dept of CSE (AI & ML), DRK Institute of Science and Technology
+
+1) PROJECT OVERVIEW
+-------------------
+CreditAI is a full-stack AI system built to evaluate loan default risk for banking use-cases.
+It provides a secure dual-portal interface:
+- Bank Dashboard: Applicant evaluation, model analytics, explainability.
+- Client Portal: Eligibility estimation, affordability breakdown, live stock holdings integration.
+
+The system uses supervised ML models trained on a synthetic loan dataset with engineered
+financial features. It converts default probability to a CIBIL-style credit score and
+presents recommendations via a modern Streamlit UI.
+
+
+2) OBJECTIVES
+-------------
+- Predict loan deigibility probability for a borrower.
+- Translate risk into a standardized credit score (300–900).
+- Provide explainability and model analytics for bankers.
+- Offer client-side eligibility checks with affordability logic (DTI + EMI).
+- Include live stock portfolio value as part of a borrower’s asset strength.
+
+
+3) SOFTWARE & TOOLS USED
+-------------------------
+Core Libraries:
+- Python (project codebase)
+- Streamlit (frontend UI)
+- scikit-learn (Logistic Regression, Random Forest)
+- XGBoost (XGBoost classifier)
+- pandas, numpy (data handling)
+- plotly, matplotlib, shap (visual analytics, explainability)
+- joblib (model persistence)
+- requests (live stock price API calls)
+
+Other Tools Used for Deliverables:
+- pdfkit / Node.js (for PDF generation)
+- pptxgenjs / JSZip (for PPT generation)
+
+
+4) DATASET GENERATION (src/generate_dataset.py)
+------------------------------------------------
+The dataset is synthetic but designed to be statistically realistic.
+Default parameters:
+- n_samples = 12,000
+- random_seed = 42
+
+Key steps in dataset generation:
+- Generate applicant demographics: Age, Employment Status.
+- Income depends on age and employment type (e.g., unemployed < employed).
+- Credit history features: Years Employed, Credit History Length, # Credit Cards.
+- Financial position: Savings balance, outstanding loans, monthly expenses.
+- Loan application: Loan amount, term, interest rate.
+- Risk indicators: Debt-to-income ratio, late payments, previous defaults.
+- Target: Loan_Default is generated using a logistic formula (log-odds)
+  based on the above features, then converted to probability.
+
+Target generation formula (simplified):
+- Increase default risk for higher DTI, previous defaults, late payments.
+- Decrease risk for higher income, longer credit history, higher savings.
+- Add employment-status adjustments and random noise.
+
+Output saved to:
+- data/loan_data.csv
+
+
+5) FEATURE ENGINEERING (src/feature_engineering.py)
+---------------------------------------------------
+Engineered features improve signal quality:
+- Credit_Utilisation_Ratio
+- Spending_Ratio
+- Repayment_Stability
+- Savings_Coverage_Months
+- Loan_Burden_Ratio
+- Financial_Stress_Index
+- Credit_Experience_Score
+- Income_to_Loan_Ratio
+
+These features capture utilization, stability, burden, and affordability patterns.
+
+
+6) PREPROCESSING (src/data_preprocessing.py)
+--------------------------------------------
+Steps applied:
+- Drop unused fields (Applicant_ID).
+- Impute missing values (median for numeric, mode for categorical).
+- Encode categorical feature: Employment_Status.
+- Scale numeric features using StandardScaler.
+- Keep consistent column order for train and inference.
+
+Output:
+- Feature matrix X, target y.
+
+
+7) MODEL TRAINING & SELECTION (src/train_model.py)
+--------------------------------------------------
+Models trained:
+- Logistic Regression
+- Random Forest
+- XGBoost
+
+Evaluation metrics:
+- Accuracy
+- Precision
+- Recall
+- ROC-AUC
+- Confusion Matrix
+
+Selection rule:
+- Best model chosen by highest ROC-AUC.
+
+Artifacts saved:
+- models/credit_model.pkl (model bundle)
+- models/training_metrics.json (metrics)
+
+
+8) INFERENCE PIPELINE (src/predict.py)
+--------------------------------------
+Prediction steps:
+1) Load model bundle (model + preprocessor).
+2) Convert applicant input to DataFrame.
+3) Apply feature engineering.
+4) Apply preprocessing (encoding + scaling).
+5) Predict default probability.
+6) Convert probability to credit score and risk tier.
+
+
+9) RISK SCORING ENGINE (src/scoring_engine.py)
+----------------------------------------------
+Credit score mapping:
+- score = 300 + (1 - P(default)) * 600
+
+Risk tiers:
+- 300–499: HIGH RISK
+- 500–699: MEDIUM RISK
+- 700–900: LOW RISK
+
+Recommendation text is generated for each tier.
+
+
+10) STREAMLIT APP OVERVIEW (app/streamlit_app.py)
+--------------------------------------------------
+Main pages:
+- Login: Role-based access (Bank vs Client).
+- Bank Home: Platform overview.
+- Applicant Evaluation: Banker input + risk output.
+- Model Analytics: Metrics, confusion matrix, feature importance.
+- Client Home: Client introduction page.
+- Client Portal: Eligibility + live stock valuation.
+- Market Watch: Live stock prices + change.
+
+Security:
+- Basic session auth for demo (role-based).
+
+
+11) CLIENT ELIGIBILITY LOGIC
+-----------------------------
+Key formulas:
+- Monthly Income = Annual Income / 12
+- DTI Cap = 0.40 * Monthly Income
+- EMI Capacity = max(0, DTI Cap - Monthly Expenses)
+- Max Affordable Loan computed using EMI formula
+
+EMI formula (for principal P, monthly rate r, months n):
+  EMI = P * r * (1+r)^n / ((1+r)^n - 1)
+
+
+12) STOCK HOLDINGS INTEGRATION
+-------------------------------
+Client enters:
+- Stock ticker
+- Shares held
+
+Process:
+- Live price is fetched via Twelve Data API.
+- Portfolio value = S(shares * live price)
+- Portfolio value is added to Savings_Balance in the model input.
+
+API configuration:
+- TWELVEDATA_API_KEY (environment variable)
+- TWELVEDATA_BASE_URL (optional)
+
+
+13) LIVE MARKET WATCH
+----------------------
+Market Watch displays:
+- Top tickers (AAPL, MSFT, GOOGL, etc.)
+- Live price, change, and change %
+- Data cached for 60 seconds to reduce API calls
+
+
+14) MODEL ANALYTICS (Example Metrics)
+-------------------------------------
+From models/training_metrics.json (example):
+- Logistic Regression: Acc 0.7396, ROC-AUC 0.7876
+- Random Forest: Acc 0.9354, ROC-AUC 0.7670
+- XGBoost: Acc 0.9504, ROC-AUC 0.7429
+Best model selected by ROC-AUC.
+
+
+15) FLOWCHARTS (ASCII)
+----------------------
+A) System Architecture
+
+[User]
+   |
+   v
+[Login] --> [Bank Portal] --> [Applicant Evaluation]
+   |                    \-> [Model Analytics]
+   |
+   \-> [Client Portal] --> [Eligibility + Stocks] --> [Risk Output]
+                |
+                \-> [Market Watch]
+
+B) Training Pipeline
+
+[Generate Dataset] --> [Feature Engineering] --> [Preprocessing]
+        |                       |                    |
+        v                       v                    v
+     loan_data.csv          engineered_df        scaled X, y
+                                           --> [Train 3 Models]
+                                           --> [Evaluate Metrics]
+                                           --> [Select Best by ROC-AUC]
+                                           --> [Save model + metrics]
+
+C) Inference Pipeline
+
+[Applicant Input]
+      |
+      v
+[Feature Engineering] --> [Preprocessor Transform] --> [Model Predict Proba]
+      |                                              |
+      v                                              v
+[Default Probability] --> [Credit Score] --> [Risk Tier + Recommendation]
+
+
+16) HOW THE MODEL WORKS (IN SIMPLE TERMS)
+------------------------------------------
+- The model learns patterns from historical borrower data.
+- It identifies relationships between income, debts, defaults, spending, etc.
+- When a new applicant is entered, the model estimates the probability of default.
+- This probability is converted into a standardized credit score and risk tier.
+
+
+17) LIMITATIONS
+---------------
+- Synthetic dataset may not fully capture real-world credit dynamics.
+- Live stock data depends on external API availability.
+- Model fairness and bias checks require further analysis.
+
+
+18) FUTURE SCOPE
+----------------
+- Add real bureau data for stronger accuracy.
+- Add cash-flow and transaction timeline features.
+- Calibrate thresholds per bank policy.
+- Add audit-ready model cards and compliance reports.
+
+
+19) QUICK VIVA QUESTIONS (AND HOW TO ANSWER)
+--------------------------------------------
+Q: Why use Logistic Regression / Random Forest / XGBoost?
+A: To compare classic interpretable models with ensemble methods and pick the best by ROC-AUC.
+
+Q: Why ROC-AUC for model selection?
+A: It balances sensitivity and specificity across all thresholds, useful for imbalanced data.
+
+Q: How is the credit score generated?
+A: Score = 300 + (1 - default probability) * 600.
+
+Q: Why use feature engineering?
+A: It adds derived signals (utilization, burden, stability) that improve predictive performance.
+
+Q: How does stock valuation affect results?
+A: Portfolio value is added to savings, improving the asset strength in scoring.
+

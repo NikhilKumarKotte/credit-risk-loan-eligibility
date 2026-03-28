@@ -1,0 +1,242 @@
+CREDITAI METHODOLOGY & TRAINING REPORT (VIVA-READY)
+==================================================
+Project: AI Credit Risk & Loan Eligibility Prediction Platform
+Date: 2026-03-22
+
+This document explains:
+- Methodology and training flow
+- How each model learns from the dataset
+- Mathematical basis of prediction and scoring
+- Why the best model is chosen
+- Flowcharts and system architecture
+
+
+1) METHODOLOGY OVERVIEW
+-----------------------
+Pipeline stages:
+1. Dataset generation (synthetic but statistically realistic)
+2. Feature engineering
+3. Preprocessing (encoding + scaling)
+4. Model training (Logistic Regression, Random Forest, XGBoost)
+5. Evaluation (Accuracy, Precision, Recall, ROC-AUC)
+6. Best-model selection (highest ROC-AUC)
+7. Inference pipeline (single applicant prediction)
+8. Risk scoring (credit score + tier + recommendation)
+
+
+2) DATASET USED (loan_data.csv)
+-------------------------------
+Features include:
+- Demographics: Age, Employment_Status
+- Financial: Income, Savings_Balance, Monthly_Expenses
+- Credit history: Credit_History_Length, Number_of_Credit_Cards
+- Liabilities: Outstanding_Loan_Amount, Previous_Defaults, Late_Payments
+- Loan request: Loan_Amount, Loan_Term, Interest_Rate
+- Behavioural: Transaction_Volume
+Target:
+- Loan_Default (0 = no default, 1 = default)
+
+Data is generated using a probabilistic model (log-odds) to simulate
+realistic default behavior based on financial stress indicators.
+
+
+3) FEATURE ENGINEERING (what is learned better)
+-----------------------------------------------
+Engineered features capture hidden patterns:
+- Credit_Utilisation_Ratio
+- Spending_Ratio
+- Repayment_Stability
+- Savings_Coverage_Months
+- Loan_Burden_Ratio
+- Financial_Stress_Index
+- Credit_Experience_Score
+- Income_to_Loan_Ratio
+
+These help models learn non-linear relationships and improve stability.
+
+
+4) PREPROCESSING
+----------------
+- Categorical encoding: Employment_Status -> numeric labels
+- Missing value imputation: median for numeric, mode for categorical
+- Scaling: StandardScaler for all numeric features
+
+This ensures all models learn on the same normalized feature space.
+
+
+5) MODEL TRAINING: HOW EACH MODEL LEARNS
+-----------------------------------------
+A) LOGISTIC REGRESSION
+- Learns a linear decision boundary between default and non-default.
+- Model equation:
+  P(default=1 | x) = 1 / (1 + exp(-(w x + b)))
+
+Learning:
+- Optimizes weights w and bias b to minimize log-loss.
+- Uses gradient descent (via solver) to find parameters that best
+  separate default vs non-default in feature space.
+
+Strengths:
+- Interpretable, stable, fast.
+- Good baseline, works well when relationship is near-linear.
+
+
+B) RANDOM FOREST
+- Ensemble of decision trees trained on bootstrapped samples.
+- Each tree:
+  - Chooses random feature subsets
+  - Splits data to maximize information gain / Gini impurity reduction
+
+Prediction:
+- Each tree votes on default/non-default.
+- Final class = majority vote; probability = average of votes.
+
+Learning:
+- Captures complex non-linear relationships.
+- Reduces overfitting compared to single decision trees.
+
+
+C) XGBOOST
+- Gradient-boosted decision trees.
+- Trains trees sequentially where each new tree corrects previous errors.
+
+Prediction:
+- Final prediction = sum of weighted tree outputs.
+- Optimizes log-loss with regularization.
+
+Learning:
+- Strong for non-linear patterns, handles interactions, and improves
+  accuracy by focusing on errors.
+
+
+6) WHY BEST MODEL IS SELECTED (ROC-AUC)
+---------------------------------------
+All models are evaluated on:
+- Accuracy
+- Precision
+- Recall
+- ROC-AUC
+
+ROC-AUC is used as the selection metric because:
+- It measures how well the model separates default vs non-default
+  across all thresholds.
+- It is robust to class imbalance.
+
+The model with highest ROC-AUC is saved and used in production.
+
+
+7) PREDICTION PIPELINE (STEP-BY-STEP)
+--------------------------------------
+Input: Applicant data (raw values)
+Steps:
+1. Convert input into DataFrame
+2. Apply feature engineering
+3. Encode categorical features
+4. Scale numeric features
+5. Predict default probability using trained model
+6. Convert probability to credit score and risk tier
+
+
+8) MATHEMATICAL BASIS OF RISK SCORE
+-----------------------------------
+Let p = P(default)
+Credit score is mapped to [300, 900] using:
+
+Score = 300 + (1 - p) * 600
+
+Risk tiers:
+- 300 499: HIGH RISK
+- 500 699: MEDIUM RISK
+- 700 900: LOW RISK
+
+Example:
+If p = 0.823
+Score = 300 + (1 - 0.823) * 600
+      = 300 + 0.177 * 600
+      = 300 + 106.2
+      = 406 (rounded)
+
+
+9) MATHEMATICAL BASIS OF ELIGIBILITY
+-------------------------------------
+Definitions:
+- Monthly Income = Annual Income / 12
+- DTI Cap = 0.40 * Monthly Income
+- EMI Capacity = max(0, DTI Cap - Monthly Expenses)
+
+EMI for loan principal P, monthly rate r, term n months:
+
+EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
+
+Max Affordable Loan is derived by rearranging EMI formula to solve for P.
+
+
+10) HOW PREDICTION USES DATA INPUTS
+------------------------------------
+Applicant fields (Age, Income, Loans, Defaults, etc.) are converted into
+engineered features (utilization, burden, stability). The model processes
+these features and outputs a default probability. That probability drives
+both the credit score and banker recommendation.
+
+
+11) FLOWCHARTS (ASCII)
+----------------------
+A) Training Flow
+
+[Generate Dataset] --> [Feature Engineering] --> [Preprocess]
+        |                       |                   |
+        v                       v                   v
+   loan_data.csv          engineered_df        scaled X, y
+                                           --> [Train Models]
+                                           --> [Evaluate]
+                                           --> [Select Best]
+                                           --> [Save Model]
+
+B) Prediction Flow
+
+[Applicant Input] -> [Feature Engineering] -> [Preprocess]
+        |                                     |
+        v                                     v
+   Feature Vector ------------------> [Model Predict]
+                                              |
+                                              v
+                                  [Default Probability]
+                                              |
+                                              v
+                              [Credit Score + Risk Tier]
+
+C) System Architecture
+
+[User]
+  |
+  v
+[Login]
+  |---------------------->
+  |                       \
+[Bank Portal]           [Client Portal]
+  |                          |
+  v                          v
+[Evaluation + Analytics]   [Eligibility + Stocks]
+                                  |
+                                  v
+                           [Risk Score Output]
+
+
+12) WHY OTHER MODELS STILL MATTER
+---------------------------------
+- Logistic Regression: Interpretability and baseline performance
+- Random Forest: Captures non-linearities, robust to noise
+- XGBoost: Strong accuracy, handles complex interactions
+
+By training all three, the system ensures the best generalization model
+is selected objectively based on ROC-AUC.
+
+
+13) CONCLUSION
+--------------
+The CreditAI training pipeline combines strong preprocessing, engineered
+features, and rigorous model evaluation to ensure robust credit risk
+prediction. The final model is chosen by ROC-AUC to ensure strong
+separation between defaulters and non-defaulters. The inference pipeline
+applies the same transformations, guaranteeing consistent prediction.
+
