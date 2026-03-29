@@ -1,0 +1,140 @@
+CREDITAI PROJECT REPORT (TEXT)
+==============================
+Project: AI Credit Risk & Loan Default Prediction Platform
+Date: 2026-03-28
+
+1) EXECUTIVE SUMMARY
+--------------------
+CreditAI is a full-stack AI credit risk platform designed for banking use-cases.
+It offers secure, role-based access for bank staff and a client portal for
+eligibility checks. The system combines synthetic data generation, feature
+engineering, supervised machine learning, explainable risk scoring, and live
+market signals (stock holdings) to improve decision quality. The platform also
+supports multi-bank applications, document upload, and approval workflows.
+
+
+2) KEY FEATURES
+---------------
+Bank Portal (Manager):
+- Applicant evaluation
+- Applications queue (accept/reject)
+- Customer profiles (KYC summary)
+- Loan products catalog
+- Approval workflow tracking
+- Credit policy rules
+- Rate & EMI calculator
+- Risk monitoring dashboard
+- Audit log
+- Notifications
+- Model analytics
+
+Bank Portal (Officer):
+- Applicant evaluation
+- Applications review (read-only)
+- Customer profiles
+- Loan products
+- Approval workflow
+- Rate & EMI calculator
+- Notifications
+
+Client Portal:
+- Eligibility check (DTI + EMI)
+- Risk score & recommendation
+- Live stock holdings valuation
+- Market Watch page
+- Application submission (selected/all banks)
+- Application history
+- Document upload
+- Client queries
+- Notifications
+
+
+3) SYSTEM ARCHITECTURE
+----------------------
+The system is a Streamlit web app with a Python ML backend.
+Core layers:
+- UI: Streamlit pages and dashboards
+- ML: Prediction pipeline with feature engineering and preprocessing
+- Data: CSV-based storage for demo (applications, credentials, profiles)
+- Utilities: Scoring engine, audit logging, notifications
+
+
+4) DATASET AND GENERATION
+-------------------------
+Dataset: data/loan_data.csv (12,000 records, 18 columns)
+The dataset is synthetic but statistically realistic. It models borrower
+profiles, loan terms, and repayment behavior. Default labels are generated
+using a logistic function of risk factors such as DTI, late payments, and
+previous defaults.
+
+
+5) MODEL TRAINING
+-----------------
+Models trained:
+- Logistic Regression
+- Random Forest
+- XGBoost
+
+Selection metric: ROC-AUC (robust under class imbalance). The best model is
+saved as a bundle with preprocessing pipeline for consistent inference.
+
+
+6) PREDICTION AND SCORING
+-------------------------
+For any applicant:
+- Apply feature engineering
+- Preprocess (encode + scale)
+- Predict default probability
+- Convert to credit score (300–900) and risk tier
+
+Score formula:
+  Score = 300 + (1 - p_default) * 600
+
+Risk tiers:
+- 300–499: High risk
+- 500–699: Medium risk
+- 700–900: Low risk
+
+
+7) ELIGIBILITY LOGIC
+--------------------
+- Monthly Income = Annual Income / 12
+- DTI Cap = 40% of Monthly Income
+- EMI Capacity = max(0, DTI Cap - Monthly Expenses)
+- Max Loan = EMI-based formula
+
+
+8) STOCK HOLDINGS INTEGRATION
+------------------------------
+Clients can add stock holdings (ticker + shares). Live prices are fetched via
+Twelve Data API. Portfolio value is added to savings to better represent
+financial strength. Prices are cached for 60 seconds to reduce API calls.
+
+
+9) APPLICATION WORKFLOW
+------------------------
+Client submits application to selected or all banks. Each bank sees its queue
+and can accept/reject. Acceptance generates a demo email log entry. All actions
+are logged for audit.
+
+
+10) SECURITY (DEMO)
+-------------------
+Credentials are stored in CSV for demo purposes. Role-based access controls
+determine page visibility. (Production system should use hashed passwords
+and a database).
+
+
+11) FUTURE SCOPE
+----------------
+- Real authentication (hashed passwords + database)
+- SMTP-based email delivery
+- KYC document verification workflow
+- Bureau score integration
+- Advanced portfolio monitoring and loan disbursement tracking
+
+
+FILE PATH
+---------
+Saved as:
+E:\claude\loan_credit\credit-risk-ai\artifacts\creditai_project_report.txt

@@ -1,0 +1,5 @@
+product,tenure_months,interest_rate,max_amount
+Personal Loan,12-60,10-18%,"₹10,00,000"
+Home Loan,60-240,7-10%,"₹1,00,00,000"
+Auto Loan,12-84,8-12%,"₹15,00,000"
+Business Loan,12-120,12-20%,"₹50,00,000"

@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -42,31 +43,66 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
 
+:root {
+    --bg-0: #05070B;
+    --bg-1: #0A0F16;
+    --bg-2: #0F1622;
+    --gold-1: #C8A24A;
+    --gold-2: #E3C168;
+    --gold-3: #8A6B2B;
+    --text-0: #F2F2F2;
+    --text-1: #B8C0CC;
+    --border-0: #1A2430;
+    --shadow-1: 10px 10px 24px rgba(0,0,0,0.65);
+    --shadow-2: -8px -8px 18px rgba(255,255,255,0.03);
+    --inset-1: inset 6px 6px 12px rgba(0,0,0,0.55);
+    --inset-2: inset -6px -6px 12px rgba(255,255,255,0.04);
+}
+
 html, body, [class*="css"] {
     font-family: 'IBM Plex Sans', sans-serif;
-    background-color: #060D18;
-    color: #E8ECF0;
+    background-color: var(--bg-0);
+    color: var(--text-0);
 }
-.stApp { background-color: #060D18; }
+.stApp {
+    background: radial-gradient(1200px 800px at 15% 10%, #0F1724 0%, #06090F 55%, #05070B 100%);
+}
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0A1628 0%, #060D18 100%);
-    border-right: 1px solid #1A2E4A;
+    background: linear-gradient(180deg, #0B111A 0%, #070A10 100%);
+    border-right: 1px solid var(--border-0);
+    box-shadow: var(--shadow-1);
 }
 [data-testid="stSidebar"] .css-1d391kg { padding-top: 2rem; }
 
 /* Metric cards */
 .metric-card {
-    background: linear-gradient(135deg, #0D1F35 0%, #112240 100%);
-    border: 1px solid #1E3A5F;
-    border-radius: 12px;
+    background: linear-gradient(145deg, #0D131D 0%, #0B1018 100%);
+    border: 1px solid rgba(200,162,74,0.15);
+    border-radius: 16px;
     padding: 1.5rem;
-    margin: 0.4rem 0;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    margin: 0.5rem 0;
+    box-shadow: var(--shadow-1), var(--shadow-2);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
-.metric-card h2 { margin: 0 0 0.2rem 0; font-family: 'IBM Plex Mono', monospace; }
-.metric-card p  { margin: 0; color: #8899AA; font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.metric-card:before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 14px;
+    box-shadow: var(--inset-1), var(--inset-2);
+    pointer-events: none;
+}
+.metric-card h2 { margin: 0 0 0.2rem 0; font-family: 'IBM Plex Mono', monospace; color: var(--gold-2); }
+.metric-card p  { margin: 0; color: var(--text-1); font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.metric-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(227,193,104,0.45);
+    box-shadow: 14px 14px 30px rgba(0,0,0,0.7), -8px -8px 18px rgba(255,255,255,0.05), 0 0 28px rgba(227,193,104,0.18);
+}
 
 /* Score badge */
 .score-badge {
@@ -75,56 +111,75 @@ html, body, [class*="css"] {
     font-weight: 700;
     letter-spacing: -2px;
     line-height: 1;
+    color: var(--gold-2);
+    text-shadow: 0 6px 18px rgba(200,162,74,0.25);
 }
 .section-header {
     font-size: 0.7rem;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #4A7FA5;
+    color: var(--gold-1);
     margin-bottom: 0.8rem;
     font-weight: 600;
+    text-shadow: 0 0 18px rgba(200,162,74,0.35), 0 0 32px rgba(200,162,74,0.18);
 }
 /* Form inputs */
 [data-testid="stNumberInput"] input,
-[data-testid="stSelectbox"] select {
-    background: #0A1628 !important;
-    border: 1px solid #1E3A5F !important;
-    color: #E8ECF0 !important;
-    border-radius: 6px !important;
+[data-testid="stSelectbox"] select,
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea,
+[data-testid="stDateInput"] input {
+    background: #0B111A !important;
+    border: 1px solid rgba(200,162,74,0.2) !important;
+    color: var(--text-0) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--inset-1), var(--inset-2) !important;
 }
+
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(135deg, #1E6FDB 0%, #0A4FA8 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.7rem 2rem;
+    background: linear-gradient(145deg, #1A1F27 0%, #0B0F14 100%);
+    color: var(--gold-2);
+    border: 1px solid rgba(200,162,74,0.35);
+    border-radius: 14px;
+    padding: 0.8rem 2rem;
     font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    font-size: 0.95rem;
-    transition: all 0.2s;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
     width: 100%;
     margin-top: 0.5rem;
+    box-shadow: var(--shadow-1), var(--shadow-2);
 }
 .stButton > button:hover {
-    background: linear-gradient(135deg, #2A7FEB 0%, #1A5FB8 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(30,111,219,0.4);
+    transform: translateY(-2px);
+    box-shadow: 12px 12px 28px rgba(0,0,0,0.7), -6px -6px 14px rgba(255,255,255,0.05);
+    color: #F3D07B;
 }
+
 /* Risk pill */
 .risk-pill {
     display: inline-block;
-    padding: 0.35rem 1.1rem;
+    padding: 0.4rem 1.2rem;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     font-family: 'IBM Plex Mono', monospace;
+    background: linear-gradient(145deg, #0F151E 0%, #0A0E14 100%);
+    border: 1px solid rgba(200,162,74,0.25);
+    box-shadow: var(--shadow-1), var(--shadow-2);
 }
+
 /* Divider */
-.h-line { border-top: 1px solid #1A2E4A; margin: 1.2rem 0; }
+.h-line {
+    border-top: 1px solid rgba(200,162,74,0.35);
+    margin: 1.2rem 0;
+    box-shadow: 0 0 18px rgba(200,162,74,0.18);
+}
+
 /* Plotly charts background fix */
 .js-plotly-plot .plotly { background: transparent !important; }
 </style>
@@ -142,6 +197,10 @@ if "role" not in st.session_state:
     st.session_state.role = None
 if "username" not in st.session_state:
     st.session_state.username = None
+if "bank" not in st.session_state:
+    st.session_state.bank = None
+if "bank_role" not in st.session_state:
+    st.session_state.bank_role = None
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -154,15 +213,225 @@ def load_model():
         return None
 
 
-AUTH_USERS = {
-    "Bank": {"admin": "bank123"},
-    "Client": {"client": "client123"},
-}
+DATA_DIR = ROOT / "data"
+LOG_DIR = ROOT / "logs"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+UPLOAD_DIR = DATA_DIR / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+CREDENTIALS_PATH = DATA_DIR / "credentials.csv"
+APPLICATIONS_PATH = DATA_DIR / "applications.csv"
+CUSTOMERS_PATH = DATA_DIR / "customers.csv"
+DOCUMENTS_PATH = DATA_DIR / "documents.csv"
+NOTIFICATIONS_PATH = DATA_DIR / "notifications.csv"
+AUDIT_LOG_PATH = DATA_DIR / "audit_log.csv"
+PRODUCTS_PATH = DATA_DIR / "products.csv"
+QUERIES_PATH = DATA_DIR / "queries.csv"
+EMAIL_LOG_PATH = LOG_DIR / "emails.log"
+
+BANKS = ["SBI", "Indian Bank", "Axis"]
 
 
-def verify_login(role: str, username: str, password: str) -> bool:
-    role_users = AUTH_USERS.get(role, {})
-    return role_users.get(username) == password
+def _seed_credentials() -> None:
+    if CREDENTIALS_PATH.exists():
+        return
+    seed = pd.DataFrame(
+        [
+            {"role": "Bank", "bank": "SBI", "bank_role": "Manager", "username": "sbi_admin", "password": "bank123"},
+            {"role": "Bank", "bank": "SBI", "bank_role": "Officer", "username": "sbi_officer", "password": "bank123"},
+            {"role": "Bank", "bank": "Indian Bank", "bank_role": "Manager", "username": "indian_admin", "password": "bank123"},
+            {"role": "Bank", "bank": "Indian Bank", "bank_role": "Officer", "username": "indian_officer", "password": "bank123"},
+            {"role": "Bank", "bank": "Axis", "bank_role": "Manager", "username": "axis_admin", "password": "bank123"},
+            {"role": "Bank", "bank": "Axis", "bank_role": "Officer", "username": "axis_officer", "password": "bank123"},
+            {"role": "Client", "bank": "", "bank_role": "", "username": "client", "password": "client123"},
+        ]
+    )
+    seed.to_csv(CREDENTIALS_PATH, index=False)
+
+
+def load_credentials() -> pd.DataFrame:
+    _seed_credentials()
+    df = pd.read_csv(CREDENTIALS_PATH)
+    if "bank_role" not in df.columns:
+        df["bank_role"] = ""
+        df.to_csv(CREDENTIALS_PATH, index=False)
+    return df
+
+
+def verify_login(
+    role: str,
+    username: str,
+    password: str,
+    bank: str | None = None,
+    bank_role: str | None = None,
+) -> bool:
+    df = load_credentials()
+    if role == "Client":
+        row = df[
+            (df["role"] == role)
+            & (df["username"] == username)
+            & (df["password"] == password)
+        ]
+    else:
+        bank_val = bank or ""
+        role_val = bank_role or ""
+        row = df[
+            (df["role"] == role)
+            & (df["username"] == username)
+            & (df["password"] == password)
+            & (df["bank"] == bank_val)
+            & (df["bank_role"] == role_val)
+        ]
+    return not row.empty
+
+
+def create_client_account(username: str, password: str, full_name: str = "", email: str = "", phone: str = "") -> tuple[bool, str]:
+    df = load_credentials()
+    username = username.strip()
+    if not username or not password:
+        return False, "Username and password are required."
+    if not df[df["username"] == username].empty:
+        return False, "Username already exists. Please choose another."
+    df.loc[len(df)] = {
+        "role": "Client",
+        "bank": "",
+        "bank_role": "",
+        "username": username,
+        "password": password,
+    }
+    df.to_csv(CREDENTIALS_PATH, index=False)
+    customers = load_customers()
+    if customers[customers["client_username"] == username].empty:
+        customers.loc[len(customers)] = {
+            "client_username": username,
+            "full_name": full_name.strip(),
+            "email": email.strip(),
+            "phone": phone.strip(),
+            "address": "",
+            "kyc_status": "Pending",
+            "risk_flags": "",
+        }
+        customers.to_csv(CUSTOMERS_PATH, index=False)
+    return True, "Account created successfully."
+
+
+def _ensure_csv(path: Path, columns: list[str]) -> None:
+    if not path.exists():
+        pd.DataFrame(columns=columns).to_csv(path, index=False)
+
+
+def init_data_files() -> None:
+    _ensure_csv(APPLICATIONS_PATH, [
+        "application_id", "client_username", "bank", "submitted_at",
+        "status", "decision_at", "decision_by", "payload_json",
+    ])
+    _ensure_csv(CUSTOMERS_PATH, [
+        "client_username", "full_name", "email", "phone", "address",
+        "kyc_status", "risk_flags",
+    ])
+    _ensure_csv(DOCUMENTS_PATH, [
+        "client_username", "doc_type", "file_path", "uploaded_at",
+    ])
+    _ensure_csv(NOTIFICATIONS_PATH, [
+        "client_username", "message", "created_at", "read",
+    ])
+    _ensure_csv(AUDIT_LOG_PATH, [
+        "event_time", "actor", "bank", "action", "application_id", "notes",
+    ])
+    _ensure_csv(QUERIES_PATH, [
+        "client_username", "message", "submitted_at", "status",
+    ])
+    if not PRODUCTS_PATH.exists():
+        products = pd.DataFrame([
+            {"product": "Personal Loan", "tenure_months": "12-60", "interest_rate": "10-18%", "max_amount": "₹10,00,000"},
+            {"product": "Home Loan", "tenure_months": "60-240", "interest_rate": "7-10%", "max_amount": "₹1,00,00,000"},
+            {"product": "Auto Loan", "tenure_months": "12-84", "interest_rate": "8-12%", "max_amount": "₹15,00,000"},
+            {"product": "Business Loan", "tenure_months": "12-120", "interest_rate": "12-20%", "max_amount": "₹50,00,000"},
+        ])
+        products.to_csv(PRODUCTS_PATH, index=False)
+
+
+def load_customers() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(CUSTOMERS_PATH)
+
+
+def save_customers(df: pd.DataFrame) -> None:
+    df.to_csv(CUSTOMERS_PATH, index=False)
+
+
+def load_documents() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(DOCUMENTS_PATH)
+
+
+def save_documents(df: pd.DataFrame) -> None:
+    df.to_csv(DOCUMENTS_PATH, index=False)
+
+
+def load_notifications() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(NOTIFICATIONS_PATH)
+
+
+def add_notification(client_username: str, message: str) -> None:
+    notes = load_notifications()
+    notes.loc[len(notes)] = {
+        "client_username": client_username,
+        "message": message,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "read": False,
+    }
+    notes.to_csv(NOTIFICATIONS_PATH, index=False)
+
+
+def load_audit_log() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(AUDIT_LOG_PATH)
+
+
+def append_audit(actor: str, bank: str, action: str, application_id: str, notes: str = "") -> None:
+    log = load_audit_log()
+    log.loc[len(log)] = {
+        "event_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "actor": actor,
+        "bank": bank,
+        "action": action,
+        "application_id": application_id,
+        "notes": notes,
+    }
+    log.to_csv(AUDIT_LOG_PATH, index=False)
+
+
+def load_products() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(PRODUCTS_PATH)
+
+
+def load_queries() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(QUERIES_PATH)
+
+
+def save_queries(df: pd.DataFrame) -> None:
+    df.to_csv(QUERIES_PATH, index=False)
+
+
+def load_applications() -> pd.DataFrame:
+    init_data_files()
+    return pd.read_csv(APPLICATIONS_PATH)
+
+
+def save_applications(df: pd.DataFrame) -> None:
+    df.to_csv(APPLICATIONS_PATH, index=False)
+
+
+def log_demo_email(to_email: str, subject: str, body: str) -> None:
+    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(EMAIL_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(f"[{stamp}] TO: {to_email} | SUBJECT: {subject}\n{body}\n---\n")
 
 
 def max_affordable_loan(monthly_capacity: float, annual_rate: float, term_months: int) -> float:
@@ -321,7 +590,10 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     if st.session_state.authenticated:
-        role_label = st.session_state.role or "User"
+        if st.session_state.role == "Bank":
+            role_label = f"{st.session_state.bank} • {st.session_state.bank_role}"
+        else:
+            role_label = "Client"
         st.markdown(
             f"<div style='font-size:0.72rem; color:#4A7FA5; letter-spacing:0.12em;'>SIGNED IN AS</div>"
             f"<div style='font-size:0.95rem; color:#E8ECF0; font-weight:600; margin-top:0.3rem;'>{role_label}</div>",
@@ -332,6 +604,8 @@ with st.sidebar:
             st.session_state.authenticated = False
             st.session_state.role = None
             st.session_state.username = None
+            st.session_state.bank = None
+            st.session_state.bank_role = None
             st.session_state.prediction_result = None
             st.session_state.applicant_data = None
             st.rerun()
@@ -339,15 +613,47 @@ with st.sidebar:
         st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
 
         if st.session_state.role == "Bank":
+            bank_role = st.session_state.get("bank_role", "Officer")
+            manager_pages = [
+                "🏠 Home",
+                "📈 Market Watch",
+                "🔍 Applicant Evaluation",
+                "👤 Client Portal",
+                "📨 Applications",
+                "👥 Customer Profiles",
+                "📦 Loan Products",
+                "✅ Approval Workflow",
+                "⚖️ Credit Policy",
+                "🧮 Rate & EMI Calculator",
+                "📉 Risk Monitoring",
+                "🧾 Audit Log",
+                "🔔 Notifications",
+                "📊 Model Analytics",
+                "ℹ️ About",
+            ]
+            officer_pages = [
+                "🏠 Home",
+                "📈 Market Watch",
+                "🔍 Applicant Evaluation",
+                "👤 Client Portal",
+                "📨 Applications",
+                "👥 Customer Profiles",
+                "📦 Loan Products",
+                "✅ Approval Workflow",
+                "🧮 Rate & EMI Calculator",
+                "🔔 Notifications",
+                "ℹ️ About",
+            ]
+            page_list = manager_pages if bank_role == "Manager" else officer_pages
             page = st.radio(
                 "Navigate",
-                ["🏠 Home", "📈 Market Watch", "🔍 Applicant Evaluation", "👤 Client Portal", "📊 Model Analytics", "ℹ️ About"],
+                page_list,
                 label_visibility="collapsed",
             )
         else:
             page = st.radio(
                 "Navigate",
-                ["👤 Client Home", "📈 Market Watch", "👤 Client Portal", "ℹ️ About"],
+                ["👤 Client Home", "📈 Market Watch", "👤 Client Portal", "🔔 Notifications", "ℹ️ About"],
                 label_visibility="collapsed",
             )
 
@@ -400,31 +706,83 @@ if page == "Login":
     </div>
     """, unsafe_allow_html=True)
 
-    with st.form("login_form"):
-        st.markdown("<div class='section-header'>Login</div>", unsafe_allow_html=True)
-        role = st.selectbox("Portal", ["Bank", "Client"])
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Sign In")
+    st.markdown("<div class='section-header'>Login</div>", unsafe_allow_html=True)
+    role = st.selectbox("Portal", ["Bank", "Client"])
 
-    if submitted:
-        if verify_login(role, username, password):
-            st.session_state.authenticated = True
-            st.session_state.role = role
-            st.session_state.username = username
-            st.rerun()
+    if role == "Bank":
+        with st.form("bank_login_form"):
+            bank = st.selectbox("Bank", BANKS)
+            bank_role = st.selectbox("Role", ["Manager", "Officer"])
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submitted = st.form_submit_button("Sign In")
+        if submitted:
+            if verify_login(role, username, password, bank, bank_role):
+                st.session_state.authenticated = True
+                st.session_state.role = role
+                st.session_state.username = username
+                st.session_state.bank = bank
+                st.session_state.bank_role = bank_role
+                st.rerun()
+            else:
+                st.error("Invalid credentials. Please try again.")
+    else:
+        access_mode = st.radio("Client Access", ["Existing User", "New User"], horizontal=True)
+        if access_mode == "Existing User":
+            with st.form("client_login_form"):
+                username = st.text_input("Username")
+                password = st.text_input("Password", type="password")
+                submitted = st.form_submit_button("Sign In")
+            if submitted:
+                if verify_login("Client", username, password):
+                    st.session_state.authenticated = True
+                    st.session_state.role = "Client"
+                    st.session_state.username = username
+                    st.session_state.bank = None
+                    st.session_state.bank_role = None
+                    st.rerun()
+                else:
+                    st.error("Invalid credentials. Please try again.")
         else:
-            st.error("Invalid credentials. Please try again.")
+            with st.form("client_register_form"):
+                st.markdown("<div class='section-header'>Create Account</div>", unsafe_allow_html=True)
+                full_name = st.text_input("Full Name")
+                email = st.text_input("Email")
+                phone = st.text_input("Phone")
+                username = st.text_input("Choose Username")
+                password = st.text_input("Choose Password", type="password")
+                confirm = st.text_input("Confirm Password", type="password")
+                submitted = st.form_submit_button("Create Account")
+            if submitted:
+                if password != confirm:
+                    st.error("Passwords do not match.")
+                else:
+                    ok, msg = create_client_account(username, password, full_name, email, phone)
+                    if ok:
+                        st.success(msg)
+                        st.session_state.authenticated = True
+                        st.session_state.role = "Client"
+                        st.session_state.username = username.strip()
+                        st.session_state.bank = None
+                        st.session_state.bank_role = None
+                        st.rerun()
+                    else:
+                        st.error(msg)
 
     st.markdown("""
     <div class='metric-card' style='margin-top:1rem;'>
         <div class='section-header'>Demo Credentials</div>
         <p style='color:#C0CDD8; font-size:0.9rem; line-height:1.7;'>
-            Bank: <span style='font-family:monospace;'>admin / bank123</span><br>
+            SBI Manager: <span style='font-family:monospace;'>sbi_admin / bank123</span><br>
+            SBI Officer: <span style='font-family:monospace;'>sbi_officer / bank123</span><br>
+            Indian Bank Manager: <span style='font-family:monospace;'>indian_admin / bank123</span><br>
+            Indian Bank Officer: <span style='font-family:monospace;'>indian_officer / bank123</span><br>
+            Axis Manager: <span style='font-family:monospace;'>axis_admin / bank123</span><br>
+            Axis Officer: <span style='font-family:monospace;'>axis_officer / bank123</span><br>
             Client: <span style='font-family:monospace;'>client / client123</span>
         </p>
         <div style='font-size:0.75rem; color:#8899AA; margin-top:0.5rem;'>
-            Replace these with real authentication before production use.
+            Credentials are stored in CSV for demo purposes only.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -724,6 +1082,23 @@ elif page == "👤 Client Home":
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Client Dashboard</div>", unsafe_allow_html=True)
+    apps = load_applications()
+    my_apps = apps[apps["client_username"] == st.session_state.username]
+    pending = (my_apps["status"] == "Pending").sum()
+    accepted = (my_apps["status"] == "Accepted").sum()
+    rejected = (my_apps["status"] == "Rejected").sum()
+    c1, c2, c3 = st.columns(3)
+    for col, (val, label) in zip([c1, c2, c3], [(pending, "Pending"), (accepted, "Accepted"), (rejected, "Rejected")]):
+        with col:
+            st.markdown(f"""
+            <div class='metric-card' style='text-align:center;'>
+                <h2 style='font-size:2rem; color:#1E6FDB;'>{val}</h2>
+                <p>{label} Applications</p>
+            </div>
+            """, unsafe_allow_html=True)
+
 
 elif page == "📈 Market Watch":
     st.markdown("""
@@ -903,6 +1278,48 @@ elif page == "👤 Client Portal":
             except Exception as e:
                 st.error(f"Prediction error: {e}")
                 st.stop()
+        st.session_state.client_calc = {
+            "desired_result": desired_result,
+            "max_result": max_result,
+            "max_loan": max_loan,
+            "monthly_income": monthly_income,
+            "dti_cap": dti_cap,
+            "monthly_capacity": monthly_capacity,
+            "dti_limit": dti_limit,
+            "desired_emi": desired_emi,
+            "desired_dti": desired_dti,
+            "portfolio_rows": portfolio_rows,
+            "portfolio_value": portfolio_value,
+            "tickers": list(tickers),
+            "prices": prices,
+            "total_savings": total_savings,
+            "desired_loan_amount": desired_loan_amount,
+            "loan_term": loan_term,
+            "interest_rate": interest_rate,
+        }
+
+    calc = st.session_state.get("client_calc")
+    if not submitted and not calc:
+        st.info("Calculate eligibility to see results.")
+        st.stop()
+    if calc:
+        desired_result = calc["desired_result"]
+        max_result = calc["max_result"]
+        max_loan = calc["max_loan"]
+        monthly_income = calc["monthly_income"]
+        dti_cap = calc["dti_cap"]
+        monthly_capacity = calc["monthly_capacity"]
+        dti_limit = calc["dti_limit"]
+        desired_emi = calc["desired_emi"]
+        desired_dti = calc["desired_dti"]
+        portfolio_rows = calc["portfolio_rows"]
+        portfolio_value = calc["portfolio_value"]
+        tickers = tuple(calc["tickers"])
+        prices = calc["prices"]
+        total_savings = calc["total_savings"]
+        desired_loan_amount = calc["desired_loan_amount"]
+        loan_term = calc["loan_term"]
+        interest_rate = calc["interest_rate"]
 
         st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
         k1, k2, k3 = st.columns(3)
@@ -1028,6 +1445,200 @@ elif page == "👤 Client Portal":
             </div>
             """, unsafe_allow_html=True)
 
+        st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-header'>Loan Application</div>", unsafe_allow_html=True)
+        st.caption("Submit your application to selected banks or all banks. Demo email logs are saved to logs/emails.log.")
+
+        application_payload = {
+            "client_username": st.session_state.username,
+            "age": age,
+            "income": income,
+            "employment_status": employment_status,
+            "years_employed": years_employed,
+            "credit_history_length": credit_history_length,
+            "number_of_credit_cards": number_of_credit_cards,
+            "outstanding_loan_amount": outstanding_loan_amount,
+            "monthly_expenses": monthly_expenses,
+            "previous_defaults": previous_defaults,
+            "late_payments": late_payments,
+            "loan_amount": desired_loan_amount,
+            "loan_term": loan_term,
+            "interest_rate": interest_rate,
+            "savings_balance": savings_balance,
+            "stock_portfolio_value": portfolio_value,
+            "default_probability": float(desired_result.default_probability),
+            "credit_score": int(desired_result.credit_score),
+            "risk_category": desired_result.risk_category,
+        }
+
+        if "selected_banks" not in st.session_state:
+            st.session_state.selected_banks = BANKS.copy()
+        else:
+            st.session_state.selected_banks = [
+                bank for bank in st.session_state.selected_banks if bank in BANKS
+            ]
+        if "selected_banks_widget" not in st.session_state:
+            st.session_state.selected_banks_widget = st.session_state.selected_banks.copy()
+
+        def _sync_selected_banks() -> None:
+            st.session_state.selected_banks = st.session_state.selected_banks_widget.copy()
+
+        c_sel_all, c_clear_all = st.columns(2)
+        with c_sel_all:
+            if st.button("Select All", key="select_all_banks_btn"):
+                st.session_state.selected_banks = BANKS.copy()
+                st.session_state.selected_banks_widget = BANKS.copy()
+        with c_clear_all:
+            if st.button("Clear All", key="clear_all_banks_btn"):
+                st.session_state.selected_banks = []
+                st.session_state.selected_banks_widget = []
+        selected_banks = st.multiselect(
+            "Select banks",
+            BANKS,
+            key="selected_banks_widget",
+            on_change=_sync_selected_banks,
+        )
+        st.session_state.selected_banks = st.session_state.selected_banks_widget.copy()
+        col_a, col_b = st.columns(2)
+        with col_a:
+            if st.button("Submit to Selected Banks"):
+                apps = load_applications()
+                for bank in selected_banks:
+                    app_id = f"APP-{int(datetime.now().timestamp())}-{bank.replace(' ', '').upper()}"
+                    apps.loc[len(apps)] = {
+                        "application_id": app_id,
+                        "client_username": st.session_state.username,
+                        "bank": bank,
+                        "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "status": "Pending",
+                        "decision_at": "",
+                        "decision_by": "",
+                        "payload_json": json.dumps(application_payload),
+                    }
+                save_applications(apps)
+                customers = load_customers()
+                if st.session_state.username not in customers["client_username"].astype(str).tolist():
+                    customers.loc[len(customers)] = {
+                        "client_username": st.session_state.username,
+                        "full_name": st.session_state.username,
+                        "email": f"{st.session_state.username}@example.com",
+                        "phone": "",
+                        "address": "",
+                        "kyc_status": "Pending",
+                        "risk_flags": "",
+                    }
+                    save_customers(customers)
+                add_notification(st.session_state.username, "Application submitted to selected banks.")
+                st.success("Application submitted to selected banks.")
+        with col_b:
+            if st.button("Submit to All Banks"):
+                apps = load_applications()
+                for bank in BANKS:
+                    app_id = f"APP-{int(datetime.now().timestamp())}-{bank.replace(' ', '').upper()}"
+                    apps.loc[len(apps)] = {
+                        "application_id": app_id,
+                        "client_username": st.session_state.username,
+                        "bank": bank,
+                        "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "status": "Pending",
+                        "decision_at": "",
+                        "decision_by": "",
+                        "payload_json": json.dumps(application_payload),
+                    }
+                save_applications(apps)
+                customers = load_customers()
+                if st.session_state.username not in customers["client_username"].astype(str).tolist():
+                    customers.loc[len(customers)] = {
+                        "client_username": st.session_state.username,
+                        "full_name": st.session_state.username,
+                        "email": f"{st.session_state.username}@example.com",
+                        "phone": "",
+                        "address": "",
+                        "kyc_status": "Pending",
+                        "risk_flags": "",
+                    }
+                    save_customers(customers)
+                add_notification(st.session_state.username, "Application submitted to all banks.")
+                st.success("Application submitted to all banks.")
+
+        st.download_button(
+            "Download Your Application",
+            data=pd.DataFrame([application_payload]).to_csv(index=False),
+            file_name="creditai_application.csv",
+            mime="text/csv",
+        )
+
+        st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-header'>Document Upload</div>", unsafe_allow_html=True)
+        doc_type = st.selectbox("Document Type", ["ID Proof", "Income Proof", "Bank Statement", "Other"])
+        upload = st.file_uploader("Upload document", type=["pdf", "png", "jpg", "jpeg"])
+        if upload is not None:
+            file_name = f"{st.session_state.username}_{int(datetime.now().timestamp())}_{upload.name}"
+            file_path = UPLOAD_DIR / file_name
+            with open(file_path, "wb") as f:
+                f.write(upload.getbuffer())
+            docs = load_documents()
+            docs.loc[len(docs)] = {
+                "client_username": st.session_state.username,
+                "doc_type": doc_type,
+                "file_path": str(file_path),
+                "uploaded_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            save_documents(docs)
+            add_notification(st.session_state.username, f"Uploaded document: {doc_type}.")
+            st.success("Document uploaded successfully.")
+
+        st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-header'>Application History</div>", unsafe_allow_html=True)
+        all_apps = load_applications()
+        hist = all_apps[all_apps["client_username"] == st.session_state.username]
+        if hist.empty:
+            st.info("No applications submitted yet.")
+        else:
+            st.dataframe(hist[["application_id", "bank", "submitted_at", "status", "decision_at"]], use_container_width=True)
+
+        st.markdown("<div class='h-line'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-header'>Client Queries</div>", unsafe_allow_html=True)
+        query_text = st.text_area("Ask a question to the bank", height=120)
+        if st.button("Submit Query"):
+            if query_text.strip():
+                q = load_queries()
+                q.loc[len(q)] = {
+                    "client_username": st.session_state.username,
+                    "message": query_text.strip(),
+                    "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "status": "Open",
+                }
+                save_queries(q)
+                add_notification(st.session_state.username, "Query submitted to bank.")
+                st.success("Query submitted.")
+            else:
+                st.warning("Please enter a query.")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: NOTIFICATIONS (Client)
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🔔 Notifications":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Notifications</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Updates about applications, documents, and decisions.
+    </p>
+    """, unsafe_allow_html=True)
+    notes = load_notifications()
+    if st.session_state.role == "Bank":
+        if notes.empty:
+            st.info("No notifications yet.")
+        else:
+            st.dataframe(notes, use_container_width=True)
+    else:
+        mine = notes[notes["client_username"] == st.session_state.username]
+        if mine.empty:
+            st.info("No notifications yet.")
+        else:
+            st.dataframe(mine[["created_at", "message"]], use_container_width=True)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE: MODEL ANALYTICS
@@ -1142,6 +1753,213 @@ elif page == "📊 Model Analytics":
             st.plotly_chart(fi_fig, use_container_width=True)
         else:
             st.info("Feature importance not available for this model type.")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: APPLICATIONS (Bank)
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📨 Applications":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Applications</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Review client applications and accept or reject them. Accepted applications generate a demo email log.
+    </p>
+    """, unsafe_allow_html=True)
+
+    bank_name = st.session_state.get("bank", "")
+    apps = load_applications()
+    if bank_name:
+        apps = apps[apps["bank"] == bank_name]
+
+    if apps.empty:
+        st.info("No applications found for this bank.")
+        st.stop()
+
+    st.dataframe(apps[["application_id", "client_username", "bank", "submitted_at", "status"]], use_container_width=True)
+
+    selected_id = st.selectbox("Select application", apps["application_id"].tolist())
+    app_row = apps[apps["application_id"] == selected_id].iloc[0]
+    payload = json.loads(app_row["payload_json"])
+
+    st.markdown("<div class='section-header'>Application Details</div>", unsafe_allow_html=True)
+    st.json(payload)
+    if st.session_state.get("bank_role") != "Manager":
+        st.info("Officer role can review only. Manager approval required for accept/reject.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Accept Application", disabled=st.session_state.get("bank_role") != "Manager"):
+            all_apps = load_applications()
+            idx = all_apps[all_apps["application_id"] == selected_id].index
+            all_apps.loc[idx, "status"] = "Accepted"
+            all_apps.loc[idx, "decision_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            all_apps.loc[idx, "decision_by"] = st.session_state.username
+            save_applications(all_apps)
+            append_audit(st.session_state.username, app_row["bank"], "Accepted", selected_id)
+            add_notification(payload["client_username"], f"Application {selected_id} accepted by {app_row['bank']}.")
+            log_demo_email(
+                to_email=f"{payload['client_username']}@example.com",
+                subject="CreditAI Application Accepted",
+                body=f"Your loan application ({selected_id}) has been accepted by {app_row['bank']}.",
+            )
+            st.success("Application accepted. Demo email logged.")
+    with col2:
+        if st.button("Reject Application", disabled=st.session_state.get("bank_role") != "Manager"):
+            all_apps = load_applications()
+            idx = all_apps[all_apps["application_id"] == selected_id].index
+            all_apps.loc[idx, "status"] = "Rejected"
+            all_apps.loc[idx, "decision_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            all_apps.loc[idx, "decision_by"] = st.session_state.username
+            save_applications(all_apps)
+            append_audit(st.session_state.username, app_row["bank"], "Rejected", selected_id)
+            add_notification(payload["client_username"], f"Application {selected_id} rejected by {app_row['bank']}.")
+            st.warning("Application rejected.")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: CUSTOMER PROFILES
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "👥 Customer Profiles":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Customer Profiles</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        KYC summaries and risk flags for clients.
+    </p>
+    """, unsafe_allow_html=True)
+    customers = load_customers()
+    if customers.empty:
+        st.info("No customer profiles available.")
+    else:
+        st.dataframe(customers, use_container_width=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: LOAN PRODUCTS
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📦 Loan Products":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Loan Products</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Bank lending products and standard terms.
+    </p>
+    """, unsafe_allow_html=True)
+    products = load_products()
+    st.dataframe(products, use_container_width=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: APPROVAL WORKFLOW
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "✅ Approval Workflow":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Approval Workflow</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Multi-step workflow: Review → Approve → Disburse.
+    </p>
+    """, unsafe_allow_html=True)
+    apps = load_applications()
+    bank_name = st.session_state.get("bank", "")
+    if bank_name:
+        apps = apps[apps["bank"] == bank_name]
+    if apps.empty:
+        st.info("No applications found.")
+    else:
+        st.dataframe(apps[["application_id", "client_username", "status", "submitted_at"]], use_container_width=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: CREDIT POLICY
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "⚖️ Credit Policy":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Credit Policy Rules</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Auto-review thresholds used for internal policy guidance.
+    </p>
+    """, unsafe_allow_html=True)
+    st.markdown("""
+    <div class='metric-card'>
+        <div class='section-header'>Sample Rules</div>
+        <ul style='color:#C0CDD8; line-height:2; padding-left:1.2rem; font-size:0.92rem;'>
+            <li>Credit score < 500 ⇒ Auto Reject</li>
+            <li>DTI > 0.60 ⇒ Manual Review</li>
+            <li>Previous defaults ≥ 2 ⇒ High Risk</li>
+            <li>Income < ₹20,000/month ⇒ Reject or collateral required</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: RATE & EMI CALCULATOR
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🧮 Rate & EMI Calculator":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Rate & EMI Calculator</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Quick EMI and affordability calculations.
+    </p>
+    """, unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        principal = st.number_input("Loan Amount (₹)", min_value=1000, value=300000, step=1000)
+    with c2:
+        rate = st.number_input("Interest Rate (%)", min_value=3.0, value=10.5, step=0.25)
+    with c3:
+        months = st.number_input("Tenure (months)", min_value=6, value=36, step=1)
+    emi = loan_emi(principal, rate, int(months))
+    st.markdown(f"""
+    <div class='metric-card' style='text-align:center;'>
+        <div class='section-header'>Estimated EMI</div>
+        <h2 style='font-size:2rem; color:#1E6FDB;'>₹{emi:,.0f}</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: RISK MONITORING
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📉 Risk Monitoring":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Risk Monitoring</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Portfolio-level KPIs for active applications.
+    </p>
+    """, unsafe_allow_html=True)
+    apps = load_applications()
+    if not apps.empty:
+        total = len(apps)
+        pending = (apps["status"] == "Pending").sum()
+        accepted = (apps["status"] == "Accepted").sum()
+        rejected = (apps["status"] == "Rejected").sum()
+        c1, c2, c3, c4 = st.columns(4)
+        for col, (val, label) in zip([c1, c2, c3, c4], [(total, "Total"), (pending, "Pending"), (accepted, "Accepted"), (rejected, "Rejected")]):
+            with col:
+                st.markdown(f"""
+                <div class='metric-card' style='text-align:center;'>
+                    <h2 style='font-size:2rem; color:#1E6FDB;'>{val}</h2>
+                    <p>{label} Apps</p>
+                </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.info("No application data yet.")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: AUDIT LOG
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🧾 Audit Log":
+    st.markdown("""
+    <h2 style='font-size:1.8rem; font-weight:700; margin-bottom:0.2rem;'>Audit Log</h2>
+    <p style='color:#8899AA; font-size:0.9rem; margin-bottom:1.5rem;'>
+        Record of approvals and rejections.
+    </p>
+    """, unsafe_allow_html=True)
+    audit = load_audit_log()
+    if audit.empty:
+        st.info("No audit events yet.")
+    else:
+        st.dataframe(audit, use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
